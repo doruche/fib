@@ -27,15 +27,17 @@ TLDR; We lose the assistance from Rust's type system and compile-time checks whe
 So we come to an awkward situation: users of fibers have to manually ensure that the code is safe to run in a fiber, which can lead to runtime errors if not done correctly.<br/> Example: 
 ```rust
 use std::cell::RefCell;
+use std::rc::Rc;
 use fib::task;
 
-let cell = RefCell::new(0);
-let _ = task::spawn(|| {
+let cell = Rc::new(RefCell::new(0));
+let cell_clone = cell.clone();
+let _ = task::spawn(move || {
     // This will panic!
-    let inner = cell.borrow_mut();
+    let _a = cell.borrow_mut();
     unreachable!();
 });
-let inner = cell.borrow_mut();
+let _b = cell_clone.borrow_mut();
 task::yield_now();
 unreachable!();
 ```

@@ -11,3 +11,7 @@ fib-macros = { path = "../fib-macros" }
 [[example]]
 name = "basic-use"
 path = "basic-use.rs"
+
+[[example]]
+name = "reborrow"
+path = "reborrow.rs"
