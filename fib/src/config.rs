@@ -1,0 +1,1 @@
+pub(crate) const STACK_SIZE: usize = 0x1000 * 8; // 32KB
