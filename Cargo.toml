@@ -2,5 +2,7 @@
 resolver = "2"
 members = [
     "fib", 
-    "fib-macros"
+    "fib-macros",
+
+    "examples",
 ]

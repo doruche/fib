@@ -10,7 +10,7 @@ thread_local! {
     pub(crate) static RUNTIME: STCell<Runtime> = STCell::new(Runtime::new());
 }
 
-pub(crate) fn runtime() -> &'static mut Runtime {
+pub fn runtime() -> &'static mut Runtime {
     RUNTIME.with(|cell| unsafe {
         (*cell.inner.get()).as_mut().unwrap()
     })
@@ -51,7 +51,7 @@ mod tests {
         let mut rt = runtime();
         rt.block_on(test_mutex);
     }
-
+    
     fn test_mutex() {
         let mut handles = vec![];
         let counter = Rc::new(Mutex::new(0));

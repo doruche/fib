@@ -9,7 +9,7 @@ use crate::task::{packet::Packet, task::{AnyTask, JoinHandle, Task, TaskState}, 
 /// which is caused by the fact that we have to keep a mutable reference to do a yield.
 /// So we should ensure that each access to the runtime is synchronized,
 /// i.e. updating the current context, yielding, etc.
-pub(crate) struct Runtime {
+pub struct Runtime {
     base_cx: Option<Context>,
     pub(crate) cxs: HashMap<usize, Context>,
     pub(crate) running_tasks: VecDeque<Box<dyn AnyTask>>,
@@ -64,7 +64,7 @@ impl Runtime {
     }
 
 
-    pub(crate) fn block_on<F, R>(&mut self, future: F) -> R
+    pub fn block_on<F, R>(&mut self, future: F) -> R
     where 
         F: FnOnce() -> R + 'static,
         R: 'static,
