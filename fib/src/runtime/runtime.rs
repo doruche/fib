@@ -49,6 +49,13 @@ impl Runtime {
         self.base_cx = Some(from_base.context);
     }
 
+    pub(crate) fn wake_task(&mut self, id: usize) {
+        let mut task = self.blocking_tasks.remove(&id)
+            .expect("No task found for the given id");
+        task.trans_state(TaskState::Ready);
+        self.running_tasks.push_back(task);
+    }
+
     pub(crate) fn spawn<F, R>(&mut self, future: F) -> JoinHandle<R>
     where
         F: FnOnce() -> R + 'static,
@@ -71,16 +78,29 @@ impl Runtime {
     {
         let root_handle = self.spawn(future);
 
-        while let Some(mut task) = self.running_tasks.pop_front() {
-            self.cur_task = task.id();
-            task.resume();
-            match task.state() {
-                TaskState::Finished => {},
-                TaskState::Ready => self.running_tasks.push_back(task),
-                TaskState::BlockOn(cause) => match cause {
-                    BlockCause::Lock => assert!(self.blocking_tasks.insert(task.id(), task).is_none()),
+        loop {
+            match self.running_tasks.pop_front() {
+                Some(mut task) => {
+                    self.cur_task = task.id();
+                    task.resume();
+                    match task.state() {
+                        TaskState::Finished => {},
+                        TaskState::Ready => self.running_tasks.push_back(task),
+                        TaskState::BlockOn(cause) => match cause {
+                            BlockCause::Lock | BlockCause::Channel => {
+                                assert!(self.blocking_tasks.insert(task.id(), task).is_none())
+                            }
+                        },
+                        TaskState::Running => unreachable!(),
+                    }
                 },
-                TaskState::Running => unreachable!(),
+                None => {
+                    // TODO: Handle blocking I/O tasks
+                    if !self.blocking_tasks.is_empty() {
+                        continue;
+                    }
+                    break;
+                },
             }
         }
 

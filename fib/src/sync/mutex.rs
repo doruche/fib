@@ -1,24 +1,34 @@
 //! One of the most basic synchronization primitives.
 
-use std::{collections::VecDeque, ops::{Deref, DerefMut}};
+use std::{collections::VecDeque, fmt::Debug, ops::{Deref, DerefMut}};
 
-use crate::{runtime::runtime, task::{packet::Packet, task::TaskState, BlockCause}, utils::STCell};
+use crate::{runtime::{runtime, wake_task}, task::{packet::Packet, task::TaskState, BlockCause}, utils::STCell};
 
-pub struct Mutex<T: 'static> {
+pub struct Mutex<T> {
     inner: STCell<MutexInner<T>>,
 }
 
-struct MutexInner<T: 'static> {
+impl<T: Debug> Debug for Mutex<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Mutex")
+            .field("data", &self.inner.get().data)
+            .field("locked", &self.inner.get().locked)
+            .field("waiters", &self.inner.get().waiters)
+            .finish()
+    }
+}
+
+struct MutexInner<T> {
     data: T,
     locked: bool,
     waiters: VecDeque<usize>,
 }
 
-pub struct MutexGuard<'a, T: 'static> {
+pub struct MutexGuard<'a, T> {
     mutex: &'a Mutex<T>,
 }
 
-impl<T: 'static> Mutex<T> {
+impl<T> Mutex<T> {
     pub const fn new(t: T) -> Self {
         let inner = MutexInner {
             data: t,
@@ -43,7 +53,7 @@ impl<T: 'static> Mutex<T> {
     }
 }
 
-impl<T: 'static> Deref for MutexGuard<'_, T> {
+impl<T> Deref for MutexGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -51,22 +61,18 @@ impl<T: 'static> Deref for MutexGuard<'_, T> {
     }
 }
 
-impl<T: 'static> DerefMut for MutexGuard<'_, T> {
+impl<T> DerefMut for MutexGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.mutex.inner.get_mut().data
     }
 }
 
-impl<T: 'static> Drop for MutexGuard<'_, T> {
+impl<T> Drop for MutexGuard<'_, T> {
     fn drop(&mut self) {
         let inner = self.mutex.inner.get_mut();
         inner.locked = false;
         if let Some(waiter_id) = inner.waiters.pop_front() {
-            let mut rt = runtime();
-            let mut waiter = rt.blocking_tasks.remove(&waiter_id)
-                .expect("No task found for waiter id");
-            waiter.trans_state(TaskState::Ready);
-            rt.running_tasks.push_back(waiter);
+            wake_task(waiter_id);
         }
     }
 }

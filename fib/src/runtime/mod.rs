@@ -4,7 +4,7 @@ pub(crate) mod runtime;
 
 use context::Transfer;
 
-use crate::{runtime::runtime::Runtime, task::packet::Packet, utils::STCell};
+use crate::{runtime::runtime::Runtime, task::{packet::Packet, BlockCause}, utils::STCell};
 
 thread_local! {
     pub(crate) static RUNTIME: STCell<Runtime> = STCell::new(Runtime::new());
@@ -14,6 +14,14 @@ pub fn runtime() -> &'static mut Runtime {
     RUNTIME.with(|cell| unsafe {
         (*cell.inner.get()).as_mut().unwrap()
     })
+}
+
+pub fn wake_task(id: usize) {
+    runtime().wake_task(id);
+}
+
+pub fn cur_task() -> usize {
+    runtime().cur_task()
 }
 
 pub(crate) extern "C" fn task_entry<R: 'static>(to_base: Transfer) -> ! {

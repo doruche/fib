@@ -8,6 +8,7 @@ pub(crate) mod packet;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum BlockCause {
     Lock,
+    Channel,
 }
 
 pub fn yield_now() {

@@ -1,6 +1,6 @@
 //! Lib-private utilities
 
-use std::cell::UnsafeCell;
+use std::{cell::UnsafeCell, fmt::Debug};
 
 /// A single-thread cell. \
 /// SAFETY \
@@ -13,15 +13,17 @@ pub(crate) struct STCell<R> {
     pub(crate) inner: UnsafeCell<Option<R>>,
 }
 
+impl<T: Debug> Debug for STCell<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("STCell")
+            .field("inner", unsafe { &*self.inner.get() })
+            .finish()
+    }
+}
+
 impl<R> STCell<R> {
     pub(crate) const fn new(value: R) -> Self {
         Self { inner: UnsafeCell::new(Some(value)) }
-    }
-
-    pub(crate) fn init(&self, value: R) {
-        unsafe {
-            *self.inner.get() = Some(value);
-        }
     }
 
     pub(crate) fn get(&self) -> &R {

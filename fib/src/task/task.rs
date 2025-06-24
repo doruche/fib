@@ -89,17 +89,12 @@ impl<R: 'static> AnyTask for Task<R> {
                             self.state = TaskState::Ready;
                         },
                         Packet::BlockOn(cause) => {
-                            match cause {
-                                BlockCause::Lock => {
-                                    self.state = TaskState::BlockOn(BlockCause::Lock);
-                                    
-                                }
-                            }
+                            self.state = TaskState::BlockOn(cause);
                         }
                     }
                 },
                 TaskState::BlockOn(ref cause) => match cause {
-                    BlockCause::Lock => {},
+                    _ => unreachable!(),
                 },
                 TaskState::Finished|TaskState::Running => unreachable!(),
             }
