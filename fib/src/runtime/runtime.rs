@@ -81,6 +81,7 @@ impl Runtime {
         loop {
             match self.running_tasks.pop_front() {
                 Some(mut task) => {
+                    assert!(matches!(task.state(), TaskState::Ready));
                     self.cur_task = task.id();
                     task.resume();
                     match task.state() {

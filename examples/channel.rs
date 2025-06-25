@@ -2,9 +2,9 @@ use fib::{sync, task};
 
 #[fib::main]
 fn main() {
-    let (tx, rx) = sync::mpsc::channel();
+    let (tx, rx) = sync::mpsc::sync_channel(1);
 
-    for i in 0..5 {
+    for i in 1..5 {
         let tx_clone = tx.clone();
         let _ = task::spawn(move || {
             tx_clone.send(format!("Message {}", i)).unwrap();
@@ -13,6 +13,7 @@ fn main() {
         });
     }
     drop(tx);
+    
     loop {
         let res = rx.recv();
         match res {
