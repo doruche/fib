@@ -10,6 +10,7 @@ pub(crate) enum BlockCause {
     Lock,
     Channel,
     Notify,
+    Barrier,
 }
 
 pub fn yield_now() {

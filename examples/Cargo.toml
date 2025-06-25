@@ -27,3 +27,7 @@ path = "oneshot.rs"
 [[example]]
 name = "notify"
 path = "notify.rs"
+
+[[example]]
+name = "barrier"
+path = "barrier.rs"
