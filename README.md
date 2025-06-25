@@ -54,6 +54,7 @@ __Currently Supported:__
   - Sync Channel
   - OneShot
   - Notify
+  - Barrier
 ## Example
 ```rust
 // examples/basic-use.rs

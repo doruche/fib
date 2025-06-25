@@ -31,3 +31,7 @@ path = "notify.rs"
 [[example]]
 name = "barrier"
 path = "barrier.rs"
+
+[[example]]
+name = "semaphore"
+path = "semaphore.rs"

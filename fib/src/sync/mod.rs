@@ -3,6 +3,7 @@
 pub(crate) mod mutex;
 pub(crate) mod notify;
 pub(crate) mod barrier;
+pub(crate) mod semaphore;
 pub mod mpsc;
 pub mod oneshot;
 
@@ -13,3 +14,4 @@ pub use mutex::{
 
 pub use notify::Notify;
 pub use barrier::Barrier;
+pub use semaphore::Semaphore;
