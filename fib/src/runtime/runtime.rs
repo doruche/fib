@@ -88,7 +88,7 @@ impl Runtime {
                         TaskState::Finished => {},
                         TaskState::Ready => self.running_tasks.push_back(task),
                         TaskState::BlockOn(cause) => match cause {
-                            BlockCause::Lock | BlockCause::Channel => {
+                            _ => {
                                 assert!(self.blocking_tasks.insert(task.id(), task).is_none())
                             }
                         },

@@ -9,6 +9,7 @@ pub(crate) mod packet;
 pub(crate) enum BlockCause {
     Lock,
     Channel,
+    Notify,
 }
 
 pub fn yield_now() {

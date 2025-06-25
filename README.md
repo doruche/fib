@@ -53,6 +53,7 @@ __Currently Supported:__
   - Channel
   - Sync Channel
   - OneShot
+  - Notify
 ## Example
 ```rust
 // examples/basic-use.rs

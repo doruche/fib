@@ -105,7 +105,9 @@ impl<T> Receiver<T> {
 
         let rt = runtime();
         channel.receiver_waiter = Some(rt.cur_task());
+        drop(channel);
         rt.yield_to_base(Packet::<()>::block_on(BlockCause::Channel));
+        channel = self.channel.borrow_mut();
 
         if let Some(item) = channel.item.take() {
             Ok(item)

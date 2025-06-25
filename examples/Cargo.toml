@@ -23,3 +23,7 @@ path = "channel.rs"
 [[example]]
 name = "oneshot"
 path = "oneshot.rs"
+
+[[example]]
+name = "notify"
+path = "notify.rs"
