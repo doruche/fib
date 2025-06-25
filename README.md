@@ -3,7 +3,7 @@ A conceptual implementation of the __M:1, stackful, fiber-based and cooperative_
 ## Overview
 - What Is A Fiber?
   - A fiber is a lightweight thread of execution that can be paused and resumed, allowing for cooperative multitasking.
-  - The exact definition of a fiber can vary, but it generally refers to a user-level thread that is managed by a runtime rather than the operating system. Different from the `async`/`await` model, fibers are stackful, meaning they maintain their own stack and can yield control at any point in their execution. In `fib`, we allocate a fixed-size stack (currently 32 KiB, see `fib/src/config.rs`) with a guard page to prevent stack overflows for each fiber.
+  - The exact definition of a fiber can vary, but it generally refers to a user-level thread that is managed by a runtime rather than the operating system. Different from the `async`/`await` state machine model (Mostly implemented as stackless coroutines), fibers are stackful, meaning they maintain their own stack and can yield control at any point in their execution. In `fib`, we allocate a fixed-size stack (currently 32 KiB, see `fib/src/config.rs`) with a guard page to prevent stack overflows for each fiber.
 - Pros & Cons of Fiber?
   - Pros
     - Context switching is quite faster than OS threads.
@@ -23,7 +23,7 @@ A conceptual implementation of the __M:1, stackful, fiber-based and cooperative_
       - Performance is divided by the single thread, which can lead to bottlenecks in CPU-bound tasks.
     - For I/O bound tasks, we can use non-blocking I/O to avoid blocking the fiber (epoll() in Linux, kqueue() in BSD, IOCP in Windows, etc.) to achieve better performance. However for CPU-bound tasks, we can not get true parallelism, and this is a most common problem with M:1 concurrency model. 
 ## Maybe The Biggest Pity...
-__TLDR; We lose the assistance from Rust's type system and compile-time checks__ when using fibers, as the _Fearless Concurrency_ model is based on `Send`/`Sync` traits, which is to deal with OS threads, while fibers are user-level threads. <br/>
+__TLDR; We lose the assistance from Rust's type system and compile-time checks__ when using fibers, as the _Fearless Concurrency_ declaration is based on `Send`/`Sync` traits, which works with OS threads, while fibers are user-level threads. <br/>
 So we come to an awkward situation: users of fibers have to manually ensure that the code is safe to run in a fiber, which can lead to runtime errors if not done correctly.<br/> Example: 
 ```rust
 use std::cell::RefCell;
@@ -56,6 +56,7 @@ __Currently Supported:__
   - Notify
   - Barrier
   - Semaphore
+  - RwLock
 ## Example
 ```rust
 // examples/basic-use.rs
