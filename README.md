@@ -55,6 +55,7 @@ __Currently Supported:__
   - OneShot
   - Notify
   - Barrier
+  - Semaphore
 ## Example
 ```rust
 // examples/basic-use.rs

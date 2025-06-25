@@ -35,3 +35,7 @@ path = "barrier.rs"
 [[example]]
 name = "semaphore"
 path = "semaphore.rs"
+
+[[example]]
+name = "rwlock"
+path = "rwlock.rs"
