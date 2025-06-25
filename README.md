@@ -23,7 +23,7 @@ A conceptual implementation of the __M:1, stackful, fiber-based and cooperative_
       - Performance is divided by the single thread, which can lead to bottlenecks in CPU-bound tasks.
     - For I/O bound tasks, we can use non-blocking I/O to avoid blocking the fiber (epoll() in Linux, kqueue() in BSD, IOCP in Windows, etc.) to achieve better performance. However for CPU-bound tasks, we can not get true parallelism, and this is a most common problem with M:1 concurrency model. 
 ## Maybe The Biggest Pity...
-TLDR; We lose the assistance from Rust's type system and compile-time checks when using fibers, as the _Fearless Concurrency_ model is based on `Send`/`Sync` traits, which is to deal with OS threads, while fibers are user-level threads. <br/>
+__TLDR; We lose the assistance from Rust's type system and compile-time checks__ when using fibers, as the _Fearless Concurrency_ model is based on `Send`/`Sync` traits, which is to deal with OS threads, while fibers are user-level threads. <br/>
 So we come to an awkward situation: users of fibers have to manually ensure that the code is safe to run in a fiber, which can lead to runtime errors if not done correctly.<br/> Example: 
 ```rust
 use std::cell::RefCell;
@@ -45,6 +45,14 @@ The safety of `RefCell` is based on the assumption that no more than one mutable
 ## How To Synchronize Fibers?
 Answer: Use `fib::sync` module, which provides a set of synchronization primitives that are safe to use in fibers. These primitives are designed to work with the fiber model and provide a way to safely share data between fibers without violating the safety guarantees of Rust. <br/>
 Should notice that the `std::sync` is useless in fibers, as it is designed for OS threads and does not work with the fiber model. So use `fib::sync::Mutex` instead of `std::sync::Mutex` and so on. The latter can easily cause problems - assume that you acquire a std mutex and yield, then another fiber tries to acquire the same mutex, thus leading to a deadlock.
+
+---
+
+__Currently Supported:__
+  - Mutex
+  - Channel
+  - Sync Channel
+  - OneShot
 ## Example
 ```rust
 // examples/basic-use.rs

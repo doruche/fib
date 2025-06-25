@@ -19,3 +19,7 @@ path = "reborrow.rs"
 [[example]]
 name = "channel"
 path = "channel.rs"
+
+[[example]]
+name = "oneshot"
+path = "oneshot.rs"

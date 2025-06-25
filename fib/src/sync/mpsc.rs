@@ -51,8 +51,6 @@ pub fn sync_channel<T: 'static>(capacity: usize) -> (SyncSender<T>, Receiver<T>)
     (sender, receiver)
 }
 
-
-
 struct SyncChannel<T> {
     buffer: VecDeque<T>,
     capacity: usize,
